@@ -1,0 +1,15 @@
+name: 'example_project'
+version: '1.0.0'
+config-version: 2
+
+profile: 'default'
+
+target-path: 'target'
+clean-targets:
+  - 'target'
+  - 'dbt_modules'
+
+models:
+  example_project:
+    example_model:
+      materialized: view
