@@ -15,6 +15,8 @@ Docker setup is deprecated thereby k8 with helm is necessary
 - `helm repo update`
 - `helm search repo airbyte`
 - `kubectl create namespace airbyte`
+- `kubectl apply -f airbyte/secrets.yaml -n airbyte`
+- `kubectl apply -f airbyte/postgres-service.yaml`
 - `helm install airbyte airbyte/airbyte --namespace airbyte --values ./airbyte/values.yaml`
 
 In Bash
@@ -22,7 +24,7 @@ In Bash
 - `export CONTAINER_PORT=$(kubectl get pod --namespace airbyte $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")`
 - `echo "Visit http://127.0.0.1:8080 to use your application"`
 - `kubectl --namespace airbyte port-forward $POD_NAME 8080:$CONTAINER_PORT`
-- `helm delete airbyte`
+- `helm delete airbyte --namespace airbyte`
 - `kubectl delete deployment airbyte`
 - `kubectl delete service airbyte`
 

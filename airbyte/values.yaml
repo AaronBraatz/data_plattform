@@ -1,2 +1,26 @@
+postgresql:
+  enabled: false
+
 global:
   airbyteUrl: https://airbyte.company.example
+
+  database:
+    type: external
+
+    # -- Secret name where database credentials are stored
+    secretName: "airbyte-config-secrets" # e.g. "airbyte-config-secrets"
+
+    # -- The database host
+    host: "postgres-service"
+
+    # -- The database port
+    port: "5432"
+
+    # -- The database name
+    database: "airbyte"
+
+    # -- The database user
+    userSecretKey: "database-user" # e.g. "database-user"
+
+    # -- The key within `secretName` where password is stored
+    passwordSecretKey: "database-password" # e.g."database-password"
