@@ -4,42 +4,42 @@ services:
   postgres:
     image: postgres:13
     environment:
-      POSTGRES_USER: example
-      POSTGRES_PASSWORD: example
-      POSTGRES_DB: example
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_pwd
+      POSTGRES_DB: airflow
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/data
 
-  airbyte-server:
-    image: airbyte/server:0.35.68-alpha
-    ports:
-      - "8000:8000"
-    environment:
-      - AIRBYTE_DB_USER=example
-      - AIRBYTE_DB_PASSWORD=example
-      - AIRBYTE_DB_NAME=example
-      - AIRBYTE_DB_HOST=postgres
-      - WORKSPACE_ROOT=/tmp/workspace
-      - DATABASE_USER=example
-    depends_on:
-      - postgres
+#  airbyte-server:
+#    image: airbyte/server:0.35.68-alpha
+#    ports:
+#      - "8000:8000"
+#    environment:
+#      - AIRBYTE_DB_USER=example
+#      - AIRBYTE_DB_PASSWORD=example
+#      - AIRBYTE_DB_NAME=example
+#      - AIRBYTE_DB_HOST=postgres
+#      - WORKSPACE_ROOT=/tmp/workspace
+#      - DATABASE_USER=example
+#    depends_on:
+#      - postgres
+#
+#  airbyte-webapp:
+#    image: airbyte/webapp:0.35.68-alpha
+#    ports:
+#      - "8001:80"
+#    environment:
+#      - INTERNAL_API_HOST=airbyte-server:8000
+#    depends_on:
+#      - airbyte-server
 
-  airbyte-webapp:
-    image: airbyte/webapp:0.35.68-alpha
-    ports:
-      - "8001:80"
-    environment:
-      - INTERNAL_API_HOST=airbyte-server:8000
-    depends_on:
-      - airbyte-server
-
-  airflow:
+  airflow-webserver:
     image: apache/airflow:2.5.0
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://example:example@postgres:5432/example
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres_user:postgres_pwd@postgres:5432/airflow
     ports:
       - "8080:8080"
     volumes:
@@ -50,51 +50,64 @@ services:
       airflow webserver"
     depends_on:
       - postgres
+      - airflow-scheduler
 
-  dbt:
-    image: ghcr.io/dbt-labs/dbt-postgres:1.0.0
+  airflow-scheduler:
+    image: apache/airflow:2.5.0
     volumes:
-      - ./dbt:/usr/app/dbt
+      - ./dags:/opt/airflow/dags
+    command: airflow scheduler
     depends_on:
       - postgres
-
-  superset:
-    image: apache/superset:latest
     environment:
-      - SUPERSET_LOAD_EXAMPLES=yes
-      - SUPERSET_SECRET_KEY=example
-      - POSTGRES_USER=example
-      - POSTGRES_PASSWORD=example
-      - POSTGRES_DB=example
-      - POSTGRES_HOST=postgres
-    ports:
-      - "8088:8088"
-    depends_on:
-      - postgres
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres_user:postgres_pwd@postgres:5432/airflow
 
-  datahub-gms:
-    image: linkedin/datahub-gms:latest
-    environment:
-      - DATAHUB_DB_USER=example
-      - DATAHUB_DB_PASSWORD=example
-      - DATAHUB_DB_NAME=example
-      - DATAHUB_DB_HOST=postgres
-      - DATAHUB_GMS_HOST=datahub-gms
-    ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
 
-  datahub-frontend:
-    image: linkedin/datahub-frontend:latest
-    environment:
-      - DATAHUB_GMS_HOST=datahub-gms
-      - DATAHUB_SECRET=your_secret_value
-      - DATAHUB_PLAY_MEM_BUFFER_SIZE=256M
-    ports:
-      - "9002:9002"
-    depends_on:
-      - datahub-gms
+#  dbt:
+#    image: ghcr.io/dbt-labs/dbt-postgres:1.0.0
+#    volumes:
+#      - ./dbt:/usr/app/dbt
+#    depends_on:
+#      - postgres
+#
+#  superset:
+#    image: apache/superset:latest
+#    environment:
+#      - SUPERSET_LOAD_EXAMPLES=yes
+#      - SUPERSET_SECRET_KEY=example
+#      - POSTGRES_USER=example
+#      - POSTGRES_PASSWORD=example
+#      - POSTGRES_DB=example
+#      - POSTGRES_HOST=postgres
+#    ports:
+#      - "8088:8088"
+#    depends_on:
+#      - postgres
+#
+#  datahub-gms:
+#    image: linkedin/datahub-gms:latest
+#    environment:
+#      - DATAHUB_DB_USER=example
+#      - DATAHUB_DB_PASSWORD=example
+#      - DATAHUB_DB_NAME=example
+#      - DATAHUB_DB_HOST=postgres
+#      - DATAHUB_GMS_HOST=datahub-gms
+#    ports:
+#      - "8081:8081"
+#    depends_on:
+#      - postgres
+#
+#  datahub-frontend:
+#    image: linkedin/datahub-frontend:latest
+#    environment:
+#      - DATAHUB_GMS_HOST=datahub-gms
+#      - DATAHUB_SECRET=your_secret_value
+#      - DATAHUB_PLAY_MEM_BUFFER_SIZE=256M
+#    ports:
+#      - "9002:9002"
+#    depends_on:
+#      - datahub-gms
 
 volumes:
   postgres_data:
