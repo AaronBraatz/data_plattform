@@ -4,12 +4,24 @@ Full on data platform
 `docker login ghcr.io`
 `docker-compose up -d`
 
-Airbyte: 
-- http://localhost:8000 (Server)
-- http://localhost:8001 (Webapp)
+## Airbyte
+### start up
+- `docker-compose up -d`
+- `docker-compose exec airflow bash`
+- `airflow users create \
+  --username admin \
+  --firstname FIRST_NAME \
+  --lastname LAST_NAME \
+  --role Admin \
+  --email admin@example.com
+`
+- `docker-compose down`
+
+- http://localhost:8080
 
 Airflow: 
 - http://localhost:8080
+- 
 
 Superset: 
 - http://localhost:8088
