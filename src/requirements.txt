@@ -1,0 +1,4 @@
+lxml
+minio
+python-dotenv
+requests
